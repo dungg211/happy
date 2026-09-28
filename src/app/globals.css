@@ -1,0 +1,423 @@
+@import "tailwindcss";
+
+:root {
+  --background: #050014;
+  --foreground: #e8dff5;
+  --pixel-pink: #ff6b9d;
+  --pixel-purple: #c471ed;
+  --pixel-blue: #667eea;
+  --pixel-cyan: #00d2ff;
+  --pixel-orange: #f093fb;
+  --pixel-gold: #ffd700;
+  --pixel-green: #43e97b;
+  --pixel-dark: #0d0221;
+  --pixel-mid: #2d1b69;
+  --terminal-green: #00ff41;
+  --terminal-bg: rgba(0, 0, 0, 0.85);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-pixel-pink: var(--pixel-pink);
+  --color-pixel-purple: var(--pixel-purple);
+  --color-pixel-blue: var(--pixel-blue);
+  --color-pixel-cyan: var(--pixel-cyan);
+  --color-pixel-orange: var(--pixel-orange);
+  --color-pixel-gold: var(--pixel-gold);
+  --color-pixel-green: var(--pixel-green);
+  --color-pixel-dark: var(--pixel-dark);
+  --color-pixel-mid: var(--pixel-mid);
+  --color-terminal-green: var(--terminal-green);
+  --font-sans: var(--font-quicksand), Arial, Helvetica, sans-serif;
+  --font-mono: var(--font-vt323), 'Courier New', monospace;
+  --font-script: var(--font-dancing-script), cursive;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(147, 51, 234, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 51, 234, 0.5);
+}
+
+/* ===== PASSWORD SCREEN (kept from old design) ===== */
+
+.pixel-border {
+  border: 4px solid var(--pixel-pink);
+  box-shadow:
+    4px 4px 0 0 var(--pixel-purple),
+    inset 0 0 0 2px rgba(255,255,255,0.1);
+  image-rendering: pixelated;
+}
+
+.dialog-box {
+  background: rgba(13, 2, 33, 0.92);
+  border: 3px solid #fff;
+  box-shadow:
+    0 0 0 3px var(--pixel-dark),
+    0 0 0 6px #fff,
+    0 0 30px rgba(199, 113, 237, 0.3);
+  padding: 24px;
+  position: relative;
+}
+
+.dialog-box::after {
+  content: '▼';
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  color: var(--pixel-gold);
+  animation: blink-cursor 1s step-end infinite;
+  font-size: 14px;
+}
+
+.terminal {
+  background: var(--terminal-bg);
+  border: 2px solid var(--terminal-green);
+  border-radius: 0;
+  font-family: var(--font-mono);
+  color: var(--terminal-green);
+  box-shadow:
+    0 0 10px rgba(0, 255, 65, 0.2),
+    inset 0 0 40px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0, 255, 65, 0.02) 2px, rgba(0, 255, 65, 0.02) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.scanlines {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0, 0, 0, 0.05) 2px, rgba(0, 0, 0, 0.05) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+.scramble-text {
+  font-family: var(--font-mono);
+  white-space: pre-wrap;
+}
+
+.polaroid {
+  background: #fff;
+  padding: 8px 8px 32px 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transform-origin: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.polaroid:hover {
+  transform: scale(1.05) rotate(0deg) !important;
+  z-index: 20;
+}
+
+.sparkle-canvas {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--pixel-pink) 0%, var(--pixel-purple) 50%, var(--pixel-cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.input-glow {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.input-glow:focus {
+  box-shadow: 0 0 20px rgba(199, 113, 237, 0.4);
+  border-color: var(--pixel-purple) !important;
+  outline: none;
+}
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-cursor::after {
+  content: '█';
+  animation: blink-cursor 0.7s step-end infinite;
+  color: var(--terminal-green);
+}
+
+@keyframes pixel-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.pixel-float {
+  animation: pixel-float 3s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 5px var(--pixel-pink)); }
+  50% { filter: drop-shadow(0 0 15px var(--pixel-purple)); }
+}
+
+/* Modal overlay (kept for password screen) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 2, 33, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== GALAXY / THIÊN HÀ STYLES ===== */
+
+.galaxy-bg {
+  background: radial-gradient(ellipse at 50% 0%, #1a0533 0%, #0a0118 40%, #050014 100%);
+  min-height: 100vh;
+}
+
+/* Nebula glow blobs */
+.galaxy-nebula {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.galaxy-nebula-1 {
+  width: 600px;
+  height: 600px;
+  top: -200px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(147, 51, 234, 0.15) 0%, transparent 70%);
+  animation: nebula-drift 20s ease-in-out infinite;
+}
+
+.galaxy-nebula-2 {
+  width: 500px;
+  height: 500px;
+  bottom: -150px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.12) 0%, transparent 70%);
+  animation: nebula-drift 25s ease-in-out infinite reverse;
+}
+
+.galaxy-nebula-3 {
+  width: 400px;
+  height: 400px;
+  top: 40%;
+  left: 60%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  animation: nebula-drift 30s ease-in-out infinite;
+}
+
+@keyframes nebula-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -20px) scale(1.1); }
+  50% { transform: translate(-20px, 30px) scale(0.95); }
+  75% { transform: translate(20px, 10px) scale(1.05); }
+}
+
+/* Galaxy title */
+.galaxy-title {
+  font-family: var(--font-script);
+  background: linear-gradient(
+    135deg,
+    #fff 0%,
+    #e0b0ff 20%,
+    #ff6bb5 40%,
+    #c471ed 60%,
+    #79e2ff 80%,
+    #fff 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: galaxy-shimmer 4s ease-in-out infinite;
+  text-shadow: none;
+  filter: drop-shadow(0 0 30px rgba(196, 113, 237, 0.3));
+}
+
+@keyframes galaxy-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Blinking cursor for title */
+.galaxy-cursor {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.7);
+  animation: blink-cursor 0.8s step-end infinite;
+  font-weight: 100;
+}
+
+/* Subtitle */
+.galaxy-subtitle {
+  color: rgba(200, 180, 255, 0.7);
+  font-family: var(--font-sans);
+  letter-spacing: 0.5px;
+}
+
+/* Center orb of galaxy */
+.galaxy-center-orb {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(196, 113, 237, 0.4) 0%,
+    rgba(147, 51, 234, 0.2) 30%,
+    rgba(99, 102, 241, 0.1) 60%,
+    transparent 100%
+  );
+  animation: orb-pulse 3s ease-in-out infinite;
+  filter: blur(20px);
+}
+
+@keyframes orb-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+}
+
+/* Galaxy photo frame */
+.galaxy-photo-frame {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 6px;
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 0 20px rgba(147, 51, 234, 0.15),
+    0 4px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.galaxy-photo:hover .galaxy-photo-frame {
+  border-color: rgba(196, 113, 237, 0.5);
+  box-shadow:
+    0 0 30px rgba(196, 113, 237, 0.3),
+    0 0 60px rgba(147, 51, 234, 0.15),
+    0 4px 30px rgba(0, 0, 0, 0.4);
+  transform: scale(1.05);
+}
+
+.galaxy-photo-title {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 10px;
+  text-align: center;
+  margin-top: 4px;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
+}
+
+/* Galaxy wish card */
+.galaxy-wish-card {
+  background: rgba(20, 10, 50, 0.85);
+  border: 1px solid rgba(147, 51, 234, 0.3);
+  border-radius: 20px;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 40px rgba(147, 51, 234, 0.2),
+    0 0 80px rgba(99, 102, 241, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.galaxy-wish-title {
+  background: linear-gradient(135deg, #fff 0%, #e0b0ff 50%, #ff6bb5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.galaxy-close-btn {
+  padding: 10px 28px;
+  border: 1px solid rgba(147, 51, 234, 0.4);
+  background: rgba(147, 51, 234, 0.15);
+  color: rgba(220, 200, 255, 0.9);
+  border-radius: 30px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.galaxy-close-btn:hover {
+  background: rgba(147, 51, 234, 0.3);
+  border-color: rgba(196, 113, 237, 0.6);
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+  transform: scale(1.05);
+}
+
+/* Romantic message box */
+.galaxy-message-box {
+  background: rgba(147, 51, 234, 0.08);
+  border: 1px solid rgba(147, 51, 234, 0.15);
+  border-radius: 16px;
+  padding: 20px 28px;
+  backdrop-filter: blur(8px);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.galaxy-romantic-text {
+  background: linear-gradient(90deg, #e0b0ff 0%, #ff99cc 50%, #c4b5fd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: var(--font-script);
+  line-height: 1.6;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+  .galaxy-center-orb {
+    width: 80px;
+    height: 80px;
+  }
+
+  .galaxy-nebula-1 { width: 300px; height: 300px; }
+  .galaxy-nebula-2 { width: 250px; height: 250px; }
+  .galaxy-nebula-3 { width: 200px; height: 200px; }
+}
